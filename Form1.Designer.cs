@@ -183,6 +183,9 @@
             picCanvas.Size = new Size(698, 287);
             picCanvas.TabIndex = 5;
             picCanvas.TabStop = false;
+            picCanvas.MouseDown += PicCanvas_MouseDown;
+            picCanvas.MouseMove += PicCanvas_MouseMove;
+            picCanvas.MouseUp += PicCanvas_MouseUp;
             // 
             // Form1
             // 
