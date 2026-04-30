@@ -41,6 +41,8 @@
             btnOpenFile = new Button();
             btnSaveFile = new Button();
             picCanvas = new PictureBox();
+            btnZoomIn = new Button();
+            btnZoomOut = new Button();
             groupShape.SuspendLayout();
             groupColor.SuspendLayout();
             groupLineSize.SuspendLayout();
@@ -115,7 +117,7 @@
             // 
             groupColor.Controls.Add(cmbColor);
             groupColor.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            groupColor.Location = new Point(227, 70);
+            groupColor.Location = new Point(221, 70);
             groupColor.Name = "groupColor";
             groupColor.Size = new Size(122, 82);
             groupColor.TabIndex = 2;
@@ -136,7 +138,7 @@
             // 
             groupLineSize.Controls.Add(trbLineWidth);
             groupLineSize.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            groupLineSize.Location = new Point(374, 70);
+            groupLineSize.Location = new Point(356, 70);
             groupLineSize.Name = "groupLineSize";
             groupLineSize.Size = new Size(159, 82);
             groupLineSize.TabIndex = 2;
@@ -149,16 +151,16 @@
             trbLineWidth.Name = "trbLineWidth";
             trbLineWidth.Size = new Size(147, 45);
             trbLineWidth.TabIndex = 0;
-            trbLineWidth.Scroll += trbLineWidth_Scroll;
+            
             trbLineWidth.ValueChanged += trbLineWidth_ValueChanged;
             // 
             // btnOpenFile
             // 
             btnOpenFile.BackColor = Color.FromArgb(255, 255, 128);
             btnOpenFile.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btnOpenFile.Location = new Point(549, 87);
+            btnOpenFile.Location = new Point(556, 85);
             btnOpenFile.Name = "btnOpenFile";
-            btnOpenFile.Size = new Size(73, 59);
+            btnOpenFile.Size = new Size(73, 67);
             btnOpenFile.TabIndex = 3;
             btnOpenFile.Text = "열기";
             btnOpenFile.UseVisualStyleBackColor = false;
@@ -168,9 +170,9 @@
             // 
             btnSaveFile.BackColor = Color.FromArgb(192, 255, 255);
             btnSaveFile.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btnSaveFile.Location = new Point(633, 87);
+            btnSaveFile.Location = new Point(635, 85);
             btnSaveFile.Name = "btnSaveFile";
-            btnSaveFile.Size = new Size(73, 59);
+            btnSaveFile.Size = new Size(73, 67);
             btnSaveFile.TabIndex = 4;
             btnSaveFile.Text = "저장";
             btnSaveFile.UseVisualStyleBackColor = false;
@@ -187,11 +189,36 @@
             picCanvas.MouseMove += PicCanvas_MouseMove;
             picCanvas.MouseUp += PicCanvas_MouseUp;
             // 
+            // btnZoomIn
+            // 
+            btnZoomIn.Font = new Font("맑은 고딕", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btnZoomIn.Location = new Point(521, 85);
+            btnZoomIn.Name = "btnZoomIn";
+            btnZoomIn.Size = new Size(33, 34);
+            btnZoomIn.TabIndex = 6;
+            btnZoomIn.Text = "+";
+            btnZoomIn.UseVisualStyleBackColor = true;
+            btnZoomIn.Click += btnZoomIn_Click;
+            // 
+            // btnZoomOut
+            // 
+            btnZoomOut.Font = new Font("맑은 고딕", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btnZoomOut.Location = new Point(521, 117);
+            btnZoomOut.Name = "btnZoomOut";
+            btnZoomOut.Size = new Size(33, 36);
+            btnZoomOut.TabIndex = 7;
+            btnZoomOut.Text = "-";
+            btnZoomOut.TextAlign = ContentAlignment.TopCenter;
+            btnZoomOut.UseVisualStyleBackColor = true;
+            btnZoomOut.Click += btnZoomOut_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(720, 459);
+            Controls.Add(btnZoomOut);
+            Controls.Add(btnZoomIn);
             Controls.Add(picCanvas);
             Controls.Add(btnSaveFile);
             Controls.Add(btnOpenFile);
@@ -225,5 +252,7 @@
         private Button btnOpenFile;
         private Button btnSaveFile;
         private PictureBox picCanvas;
+        private Button btnZoomIn;
+        private Button btnZoomOut;
     }
 }
