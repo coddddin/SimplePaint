@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 namespace SimplePaint
@@ -27,6 +28,7 @@ namespace SimplePaint
             canvasGraphics.Clear(Color.White); // 캔버스를 흰색으로 초기화
 
             picCanvas.Image = canvasBitmap; // 그린 그림을 화면(PictureBox)에 표시
+            picCanvas.SizeMode = PictureBoxSizeMode.Normal;
 
             // 마우스 이벤트 연결
             picCanvas.MouseDown += PicCanvas_MouseDown;
@@ -68,12 +70,92 @@ namespace SimplePaint
 
         private void btnOpenFile_Click(object sender, EventArgs e)
         {
+            // ShowDialog()가 중복 호출되어 두 번 열리던 문제 수정:
+            // 대화상자는 한 번만 호출하고, 선택되면 해당 파일을 캔버스 비트맵에 그립니다.
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.InitialDirectory = @"C:\";
+                ofd.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif|All Files|*.*";
 
+                if (ofd.ShowDialog() != DialogResult.OK) return;
+
+                try
+                {
+                    using (Image img = Image.FromFile(ofd.FileName))
+                    {
+                        // 기존 캔버스 비트맵 정리
+                        canvasBitmap?.Dispose();
+
+                        // 캔버스 크기에 맞는 비트맵을 새로 만들고 이미지를 그린다 (스트레치)
+                        canvasBitmap = new Bitmap(picCanvas.Width, picCanvas.Height);
+                        canvasGraphics = Graphics.FromImage(canvasBitmap);
+                        canvasGraphics.Clear(Color.White);
+                        canvasGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        canvasGraphics.DrawImage(img, new Rectangle(0, 0, picCanvas.Width, picCanvas.Height));
+
+                        picCanvas.Image = canvasBitmap;
+                        picCanvas.SizeMode = PictureBoxSizeMode.Normal;
+                        picCanvas.Invalidate();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"이미지 열기 실패: {ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void btnSaveFile_Click(object sender, EventArgs e)
         {
+            if (canvasBitmap == null)
+            {
+                MessageBox.Show("저장할 캔버스가 없습니다.", "정보", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "PNG 이미지|*.png|JPEG 이미지|*.jpg;*.jpeg|Bitmap 이미지|*.bmp";
+                sfd.DefaultExt = "png";
+                sfd.AddExtension = true;
+                sfd.FileName = "untitled";
+
+                if (sfd.ShowDialog() != DialogResult.OK) return;
+
+                string ext = Path.GetExtension(sfd.FileName).ToLowerInvariant();
+                try
+                {
+                    if (ext == ".jpg" || ext == ".jpeg")
+                    {
+                        // JPEG 저장 시 품질 설정 (예: 90)
+                        ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                        if (jpgEncoder != null)
+                        {
+                            using (EncoderParameters encoderParams = new EncoderParameters(1))
+                            {
+                                encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, 90L);
+                                canvasBitmap.Save(sfd.FileName, jpgEncoder, encoderParams);
+                            }
+                        }
+                        else
+                        {
+                            canvasBitmap.Save(sfd.FileName, ImageFormat.Jpeg);
+                        }
+                    }
+                    else if (ext == ".bmp")
+                    {
+                        canvasBitmap.Save(sfd.FileName, ImageFormat.Bmp);
+                    }
+                    else // .png (기본)
+                    {
+                        canvasBitmap.Save(sfd.FileName, ImageFormat.Png);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"파일 저장 실패: {ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void cmbColor_SelectedIndexChanged(object sender, EventArgs e)
@@ -169,6 +251,16 @@ namespace SimplePaint
                 DrawShape(canvasGraphics, pen, startPoint, endPoint);
             }
             picCanvas.Invalidate(); // 다시 그려서 결과 반영, Paint 이벤트 발생
+        }
+
+        private ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+            foreach (var codec in codecs)
+            {
+                if (codec.FormatID == format.Guid) return codec;
+            }
+            return null;
         }
     }
 }
